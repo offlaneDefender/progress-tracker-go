@@ -16,13 +16,13 @@ func Start() {
 		data := scanner.Text()
 		switch data {
 		case "1":
-			getRequest()
+			go getRequest()
 		case "2":
-			postRequest()
+			go postRequest()
 		case "3":
-			putRequest()
+			go putRequest()
 		case "4":
-			deleteRequest()
+			go deleteRequest()
 		case "0":
 			fmt.Println("Exiting")
 			return
