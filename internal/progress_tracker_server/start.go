@@ -52,6 +52,22 @@ func (pt *ProgressTracker) FindByName(name string) int {
 
 func Start() {
 	pt := ProgressTracker{Goals: []goal{}}
+
+	// connect to the db
+	progtracdb, err := ConnectToDBAndInit()
+
+	if err != nil {
+		panic(err)
+	}
+
+	id, err := InsertTestData(progtracdb)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Inserted Goal with id %v", id)
+
 	// Initialize a server
 	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Request received from", r.RemoteAddr, "for", r.URL, "with method", r.Method)
