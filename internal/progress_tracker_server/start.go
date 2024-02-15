@@ -66,7 +66,12 @@ func Start() {
 		panic(err)
 	}
 
-	fmt.Printf("Inserted Goal with id %v", id)
+	switch id {
+	case 0:
+		fmt.Println("Data already present, skipping test data insertion")
+	default:
+		fmt.Printf("Inserted Goal with id %v", id)
+	}
 
 	// Initialize a server
 	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
@@ -80,7 +85,7 @@ func Start() {
 
 		decoder := json.NewDecoder(r.Body)
 
-		var pb PostBody
+		var pb common.GoalPutBody
 
 		err := decoder.Decode(&pb)
 
@@ -98,7 +103,7 @@ func Start() {
 
 		decoder := json.NewDecoder(r.Body)
 
-		var pb PostBody
+		var pb common.GoalPostBody
 
 		err := decoder.Decode(&pb)
 
@@ -115,7 +120,7 @@ func Start() {
 
 		decoder := json.NewDecoder(r.Body)
 
-		var pb PostBody
+		var pb common.GoalPostBody
 
 		err := decoder.Decode(&pb)
 
@@ -132,8 +137,4 @@ func Start() {
 		fmt.Fprintf(w, "Deleted %v", pb.Name)
 	})
 	http.ListenAndServe(":8080", nil)
-}
-
-type PostBody struct {
-	Name string `json:"name"`
 }
