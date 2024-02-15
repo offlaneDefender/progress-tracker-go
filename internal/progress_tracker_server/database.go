@@ -49,16 +49,22 @@ func InsertTestData(db *ProgtracDB) (int, error) {
 		return 0, err
 	}
 
-	res, err := db.db.Exec(insert)
+	rows, err := db.db.Query("Select name from goals")
 
-	if err != nil {
-		return 0, err
+	dataIsPresent := rows.Next()
+
+	if dataIsPresent == false {
+		res, err := db.db.Exec(insert)
+		if err != nil {
+			return 0, err
+		}
+
+		var id int64
+		if id, err = res.LastInsertId(); err != nil {
+			return 0, err
+		}
+		return int(id), nil
 	}
 
-	var id int64
-	if id, err = res.LastInsertId(); err != nil {
-		return 0, err
-	}
-
-	return int(id), nil
+	return 0, nil
 }
