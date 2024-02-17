@@ -1,7 +1,7 @@
 package main
 
-import progress_tracker_client "github.com/offlaneDefender/progress-tracker-go/internal/progress_tracker_client"
+import "github.com/offlaneDefender/progress-tracker-go/internal/client"
 
 func main() {
-	progress_tracker_client.Start()
+	client.Start()
 }
