@@ -12,8 +12,9 @@ const file string = "progtrac.db"
 const create string = `
 	CREATE TABLE IF NOT EXISTS goals(
 		id INTEGER NOT NULL PRIMARY KEY,
-		name TEXT not null,
-		progress INTEGER NOT NULL
+		name TEXT NOT NULL,
+		progress INTEGER NOT NULL,
+		maxTicks INTEGER NOT NULL
 	);
 `
 
@@ -49,11 +50,11 @@ func InsertTestData(db *ProgtracDB) (int, error) {
 		return 0, err
 	}
 
-	rows, err := db.db.Query("Select name from goals")
+	rows, _ := db.db.Query("Select name from goals")
 
 	dataIsPresent := rows.Next()
 
-	if dataIsPresent == false {
+	if !dataIsPresent {
 		res, err := db.db.Exec(insert)
 		if err != nil {
 			return 0, err

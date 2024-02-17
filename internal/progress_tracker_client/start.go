@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 
@@ -13,10 +14,12 @@ import (
 )
 
 func Start() {
+	log.SetPrefix("greetings: ")
+	log.SetFlags(0)
 	// Read input from the user
 	fmt.Println("Select a method to query the server with (1-4), 0 for exit:", "GET", "POST", "PUT", "DELETE")
 	scanner := bufio.NewScanner(os.Stdin)
-	goal := common.GoalPutBody{Name: "GoalTest"}
+	goal := common.GoalPutBody{Name: "GoalTest", MaxTicks: 10}
 
 	for scanner.Scan() {
 		data := scanner.Text()
@@ -43,9 +46,7 @@ func getRequest() {
 	resp, err := http.Get("http://localhost:8080/")
 
 	if err != nil {
-		fmt.Println("Error:", err)
-	} else {
-		fmt.Println("Response received")
+		log.Fatalf("Error: %v", err)
 	}
 
 	defer resp.Body.Close()
@@ -53,9 +54,9 @@ func getRequest() {
 	body, readErr := io.ReadAll(resp.Body)
 
 	if readErr != nil {
-		fmt.Println("Error:", readErr)
+		log.Fatalf("Error: %v", readErr)
 	} else {
-		fmt.Println("Body:", string(body))
+		log.Println("Body:", string(body))
 	}
 }
 
@@ -64,16 +65,13 @@ func postRequest(g common.Goal) {
 	payload := bytes.NewBuffer(jsonGoal)
 
 	if err != nil {
-		fmt.Println("JSON marshall error", err)
-		return
+		log.Fatalf("JSON marshall error: %v", err)
 	}
 
 	resp, err := http.Post("http://localhost:8080/", "application/json", payload)
 
 	if err != nil {
-		fmt.Println("Error:", err)
-	} else {
-		fmt.Println("Response received")
+		log.Fatalf("Error: %v", err)
 	}
 
 	defer resp.Body.Close()
@@ -81,22 +79,25 @@ func postRequest(g common.Goal) {
 	body, readErr := io.ReadAll(resp.Body)
 
 	if readErr != nil {
-		fmt.Println("Error:", readErr)
+		log.Fatalf("Error: %v", readErr)
 	} else {
-		fmt.Println("POST Body:", string(body))
+		log.Println("POST Body:", string(body))
 	}
 }
 
 func putRequest(g common.Goal) {
 	jsonGoal, err := json.Marshal(g)
+
+	if err != nil {
+		log.Fatalf("JSON marshall error: %v", err)
+	}
+
 	payload := bytes.NewBuffer(jsonGoal)
 
 	req, err := http.NewRequest(http.MethodPut, "http://localhost:8080/", payload)
 
 	if err != nil {
-		fmt.Println("Error:", err)
-	} else {
-		fmt.Println("Request created")
+		log.Fatalf("Error: %v", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -105,9 +106,7 @@ func putRequest(g common.Goal) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		fmt.Println("Error:", err)
-	} else {
-		fmt.Println("Response received")
+		log.Fatalf("Error: %v", err)
 	}
 
 	defer resp.Body.Close()
@@ -115,22 +114,25 @@ func putRequest(g common.Goal) {
 	body, readErr := io.ReadAll(resp.Body)
 
 	if readErr != nil {
-		fmt.Println("Error:", readErr)
+		log.Fatalf("Error: %v", err)
 	} else {
-		fmt.Println("PUT Body:", string(body))
+		log.Println("PUT Body:", string(body))
 	}
 }
 
 func deleteRequest(g common.Goal) {
 	jsonGoal, err := json.Marshal(g)
+
+	if err != nil {
+		log.Fatalf("JSON marshall error: %v", err)
+	}
+
 	payload := bytes.NewBuffer(jsonGoal)
 
 	req, err := http.NewRequest("DELETE", "http://localhost:8080/", payload)
 
 	if err != nil {
-		fmt.Println("Error:", err)
-	} else {
-		fmt.Println("Request created")
+		log.Fatalf("Error: %v", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -139,9 +141,7 @@ func deleteRequest(g common.Goal) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		fmt.Println("Error:", err)
-	} else {
-		fmt.Println("Response received")
+		log.Fatalf("Error: %v", err)
 	}
 
 	defer resp.Body.Close()
@@ -149,8 +149,8 @@ func deleteRequest(g common.Goal) {
 	body, readErr := io.ReadAll(resp.Body)
 
 	if readErr != nil {
-		fmt.Println("Error:", readErr)
+		log.Fatalf("Error: %v", err)
 	} else {
-		fmt.Println("Delete Body:", string(body))
+		log.Println("Delete Body:", string(body))
 	}
 }

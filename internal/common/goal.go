@@ -2,11 +2,14 @@ package common
 
 type Goal struct {
 	Name     string
-	Progress int
+	Progress float64
+	MaxTicks int
+	Complete bool
 }
 
 type GoalPostBody struct {
-	Name string
+	Name     string
+	MaxTicks int
 }
 
 type GoalPutBody = Goal
