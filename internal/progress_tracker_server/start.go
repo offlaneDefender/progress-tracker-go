@@ -3,6 +3,7 @@ package progress_tracker
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"slices"
 
@@ -15,17 +16,39 @@ type ProgressTracker struct {
 	Goals []goal
 }
 
-func (pt *ProgressTracker) AddGoal(name string) {
-	pt.Goals = append(pt.Goals, goal{Name: name, Progress: 0})
+func (pt *ProgressTracker) AddGoal(name string, maxTicks int) {
+	pt.Goals = append(pt.Goals, goal{Name: name, Progress: 0, MaxTicks: maxTicks})
 }
 
-func (pt *ProgressTracker) TickProgress(name string) int {
+func (pt *ProgressTracker) TickProgress(name string) float64 {
 	index := pt.FindByName(name)
 	if index == -1 {
 		return -1
 	}
 
-	pt.Goals[index].Progress += 10
+	foundGoal := pt.Goals[index]
+
+	if foundGoal.MaxTicks == 0 {
+		return -1
+	}
+
+	tickrate := float64(100 / foundGoal.MaxTicks)
+
+	/*	floating point numbers are fun!
+		chose 0.005 as close-enough to zero
+		might 'increase' precision ( add more zeros ) later if needed
+	*/
+	if foundGoal.Complete ||
+		math.Abs(foundGoal.Progress-100) < 0.005 ||
+		math.Abs(foundGoal.Progress+tickrate-100) < 0.005 {
+		if foundGoal.Progress != 100 {
+			pt.Goals[index].Progress = 100
+		}
+		pt.Goals[index].Complete = true
+		return 100
+	}
+
+	pt.Goals[index].Progress += tickrate
 
 	return pt.Goals[index].Progress
 }
@@ -36,12 +59,8 @@ func (pt *ProgressTracker) DeleteGoal(name string) bool {
 		return false
 	}
 
-	fmt.Println(pt.Goals)
-
 	pt.Goals[index] = pt.Goals[len(pt.Goals)-1]
 	pt.Goals = pt.Goals[:len(pt.Goals)-1]
-
-	fmt.Println(pt.Goals)
 
 	return true
 }
@@ -111,7 +130,12 @@ func Start() {
 			panic(err)
 		}
 
-		pt.AddGoal(pb.Name)
+		if pb.MaxTicks <= 0 {
+			http.Error(w, "MaxTicks should not be a non-zero positive integer", 400)
+			return
+		}
+
+		pt.AddGoal(pb.Name, pb.MaxTicks)
 
 		fmt.Fprintf(w, "Goals: %v", pt.Goals)
 	})
@@ -130,8 +154,10 @@ func Start() {
 
 		didDelete := pt.DeleteGoal(pb.Name)
 
-		if didDelete == false {
-			fmt.Fprintf(w, "Could not delete %v", pb.Name)
+		if !didDelete {
+			err := fmt.Sprintf("Could not delete %v", pb.Name)
+			http.Error(w, err, 400)
+			return
 		}
 
 		fmt.Fprintf(w, "Deleted %v", pb.Name)
