@@ -1,4 +1,4 @@
-package progress_tracker_client
+package client
 
 import (
 	"bufio"

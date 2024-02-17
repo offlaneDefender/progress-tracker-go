@@ -1,4 +1,4 @@
-package progress_tracker
+package server
 
 import (
 	"encoding/json"
@@ -16,7 +16,15 @@ type ProgressTracker struct {
 	Goals []goal
 }
 
+/*
+	TODO:
+		1. Add error to return value of functions for unit testing
+*/
+
 func (pt *ProgressTracker) AddGoal(name string, maxTicks int) {
+	if maxTicks == 0 {
+		return
+	}
 	pt.Goals = append(pt.Goals, goal{Name: name, Progress: 0, MaxTicks: maxTicks})
 }
 

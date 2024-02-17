@@ -1,4 +1,4 @@
-package progress_tracker
+package server
 
 import (
 	"database/sql"
