@@ -17,8 +17,8 @@ func TestServer(t *testing.T) {
 			}
 
 			// test appending
-			pt.AddGoal("testGoal", 10)
-			if len(pt.Goals) != 1 || pt.Goals[0].Name != "testGoal" {
+			err := pt.AddGoal("testGoal", 10)
+			if len(pt.Goals) != 1 || pt.Goals[0].Name != "testGoal" || err != nil {
 				t.Error("Failed to add a new Goal.")
 			}
 
@@ -29,15 +29,15 @@ func TestServer(t *testing.T) {
 			}
 
 			// test deletion
-			deleted := pt.DeleteGoal("testGoal")
-			if !deleted || len(pt.Goals) != 0 {
+			deleted, err := pt.DeleteGoal("testGoal")
+			if !deleted || len(pt.Goals) != 0 || err != nil {
 				t.Error("Failed to delete a Goal.")
 			}
 
 			// test ticking
 			pt.AddGoal("testGoal", 10)
-			prog := pt.TickProgress("testGoal")
-			if prog == -1 || prog != 10 {
+			prog, err := pt.TickProgress("testGoal")
+			if prog == -1 || prog != 10 || err != nil {
 				t.Error("Failed to tick the progress of a Goal.")
 			}
 		})
@@ -50,8 +50,8 @@ func TestServer(t *testing.T) {
 			}
 
 			// should fail to add a goal if MaxTicks is zero
-			pt.AddGoal("testGoal", 0)
-			if len(pt.Goals) == 1 {
+			err := pt.AddGoal("testGoal", 0)
+			if len(pt.Goals) == 1 || err == nil {
 				t.Error("Failed to error adding on invalid input.")
 			}
 
@@ -63,14 +63,14 @@ func TestServer(t *testing.T) {
 
 			// should fail to delete a goal if no such goal exists
 			pt.AddGoal("testGoal", 10)
-			pt.DeleteGoal("testGoal2")
-			if len(pt.Goals) == 0 {
+			_, err = pt.DeleteGoal("testGoal2")
+			if err == nil {
 				t.Error("Failed to error on deleting of a non-present Goal.")
 			}
 
 			// should fail to tick a goal if no such goal exists
-			prog := pt.TickProgress("invalid")
-			if prog != -1 || prog == 10 {
+			prog, err := pt.TickProgress("invalid")
+			if prog != -1 || prog == 10 || err == nil {
 				t.Error("Failed to error ticking the progress of a non-present Goal.")
 			}
 		})
