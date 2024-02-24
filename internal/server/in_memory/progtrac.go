@@ -1,15 +1,11 @@
-package repo
+package inmemory
 
 import (
 	"errors"
 	"fmt"
 	"math"
 	"slices"
-
-	"github.com/offlaneDefender/progress-tracker-go/internal/common"
 )
-
-type goal common.Goal
 
 type ProgressTracker struct {
 	goals []goal

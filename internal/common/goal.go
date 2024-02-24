@@ -1,6 +1,7 @@
 package common
 
 type Goal struct {
+	ID       int
 	Name     string
 	Progress float64
 	MaxTicks int

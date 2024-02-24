@@ -3,13 +3,13 @@ package server_test
 import (
 	"testing"
 
-	"github.com/offlaneDefender/progress-tracker-go/internal/server/repo"
+	inmemory "github.com/offlaneDefender/progress-tracker-go/internal/server/in_memory"
 )
 
-func TestRepo(t *testing.T) {
+func TestInmemory(t *testing.T) {
 	t.Run("In memory progress tracker", func(t *testing.T) {
 		t.Run("Happy cases", func(t *testing.T) {
-			var pt repo.ProgressTracker
+			var pt inmemory.ProgressTracker
 
 			// test creation
 			if len(pt.ReadGoals()) != 0 {
@@ -42,7 +42,7 @@ func TestRepo(t *testing.T) {
 			}
 		})
 		t.Run("Error cases", func(t *testing.T) {
-			var pt repo.ProgressTracker
+			var pt inmemory.ProgressTracker
 
 			// test creation
 			if len(pt.ReadGoals()) != 0 {
