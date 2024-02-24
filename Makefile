@@ -9,15 +9,14 @@ run-server-dev:
 	go run ${SERVER_PATH}
 
 build-server:
-	go build -o ${BINARY_NAME}-server ${SERVER_PATH}
+	go build -o bin/${BINARY_NAME}-server ${SERVER_PATH}
 
 build-client:
-	go build -o ${BINARY_NAME}-client ${CLIENT_PATH}
+	go build -o bin/${BINARY_NAME}-client ${CLIENT_PATH}
 
 clean:
 	go clean
-	rm ${BINARY_NAME}-server
-	rm ${BINARY_NAME}-client
+	rm -r bin/
 
 test:
 	go test ./test/... -v
