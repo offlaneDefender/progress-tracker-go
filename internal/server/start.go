@@ -17,11 +17,6 @@ type ProgressTracker struct {
 	Goals []goal
 }
 
-/*
-	TODO:
-		1. Add error to return value of functions for unit testing
-*/
-
 func (pt *ProgressTracker) AddGoal(name string, maxTicks int) error {
 	if maxTicks <= 0 {
 		return errors.New("MaxTicks cannot be less than 1")
@@ -84,26 +79,6 @@ func (pt *ProgressTracker) FindByName(name string) int {
 
 func Start() {
 	pt := ProgressTracker{Goals: []goal{}}
-
-	// connect to the db
-	progtracdb, err := ConnectToDBAndInit()
-
-	if err != nil {
-		panic(err)
-	}
-
-	id, err := InsertTestData(progtracdb)
-
-	if err != nil {
-		panic(err)
-	}
-
-	switch id {
-	case 0:
-		fmt.Println("Data already present, skipping test data insertion")
-	default:
-		fmt.Printf("Inserted Goal with id %v", id)
-	}
 
 	// Initialize a server
 	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
