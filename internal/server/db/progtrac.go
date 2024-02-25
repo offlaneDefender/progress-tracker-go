@@ -19,7 +19,7 @@ func ReadGoals(db *sql.DB) ([]Goal, error) {
 	for rows.Next() {
 		var goal Goal
 
-		if err := rows.Scan(&goal.ID, &goal.Name, &goal.Complete, &goal.MaxTicks, &goal.Progress); err != nil {
+		if err := rows.Scan(&goal.ID, &goal.Name, &goal.MaxTicks, &goal.Progress, &goal.Complete); err != nil {
 			fmt.Println("Error scanning row:", err)
 			return make([]Goal, 0), err
 		}
