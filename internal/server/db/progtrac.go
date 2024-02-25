@@ -156,7 +156,7 @@ func CreateTableIfNotPresent(db *sql.DB) error {
 		complete INTEGER DEFAULT 0
 	);`
 
-	_, err := db.Query(query)
+	_, err := db.Exec(query)
 
 	if err != nil {
 		return err
