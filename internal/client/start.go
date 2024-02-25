@@ -43,7 +43,7 @@ func Start() {
 }
 
 func getRequest() {
-	resp, err := http.Get("http://localhost:8080/")
+	resp, err := http.Get("http://localhost:8080/goals")
 
 	if err != nil {
 		log.Fatalf("Error: %v", err)
@@ -68,7 +68,7 @@ func postRequest(g common.Goal) {
 		log.Fatalf("JSON marshall error: %v", err)
 	}
 
-	resp, err := http.Post("http://localhost:8080/", "application/json", payload)
+	resp, err := http.Post("http://localhost:8080/goals", "application/json", payload)
 
 	if err != nil {
 		log.Fatalf("Error: %v", err)
@@ -94,7 +94,7 @@ func putRequest(g common.Goal) {
 
 	payload := bytes.NewBuffer(jsonGoal)
 
-	req, err := http.NewRequest(http.MethodPut, "http://localhost:8080/", payload)
+	req, err := http.NewRequest(http.MethodPut, "http://localhost:8080/goals/"+g.Name, payload)
 
 	if err != nil {
 		log.Fatalf("Error: %v", err)
@@ -129,7 +129,7 @@ func deleteRequest(g common.Goal) {
 
 	payload := bytes.NewBuffer(jsonGoal)
 
-	req, err := http.NewRequest("DELETE", "http://localhost:8080/", payload)
+	req, err := http.NewRequest("DELETE", "http://localhost:8080/goals/"+g.Name, payload)
 
 	if err != nil {
 		log.Fatalf("Error: %v", err)
