@@ -54,13 +54,26 @@ func Start() {
 
 	fmt.Println(res)
 
-	err = AddGoal(db, "TestInsert", 10)
+	_, err = FindByName(db, "TestInsert")
+	if err != nil {
+		if err != sql.ErrNoRows {
+			log.Fatal(err)
+		} else {
+			err = AddGoal(db, "TestInsert", 10)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("Inserted goal")
+		}
+	}
+
+	prg, err := TickProgress(db, "TestInsert")
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Inserted goal")
+	fmt.Println("Updated TestInsert, new prog:", prg)
 
 	defer db.Close()
 }

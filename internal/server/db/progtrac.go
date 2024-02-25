@@ -5,7 +5,26 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
 )
+
+func FindByName(db *sql.DB, name string) (Goal, error) {
+	if name == "" {
+		return Goal{}, errors.New("cannot find goal with empty name")
+	}
+
+	const query = `SELECT * FROM goals WHERE name = ?`
+
+	row := db.QueryRow(query, name)
+
+	var goal Goal
+
+	if err := row.Scan(&goal.ID, &goal.Name, &goal.MaxTicks, &goal.Progress, &goal.Complete); err == sql.ErrNoRows {
+		return Goal{}, err
+	}
+
+	return goal, nil
+}
 
 func ReadGoals(db *sql.DB) ([]Goal, error) {
 	rows, err := db.Query("SELECT * FROM goals")
@@ -62,13 +81,54 @@ func AddGoal(db *sql.DB, name string, maxTicks int) error {
 	return nil
 }
 
+func TickProgress(db *sql.DB, name string) (float64, error) {
+	if name == "" {
+		return 0, errors.New("cannot tick progress for goal with empty name")
+	}
+
+	goal, err := FindByName(db, name)
+
+	if err != nil {
+		return 0, err
+	}
+
+	tickrate := float64(100 / goal.MaxTicks)
+	complete := 0
+
+	if goal.Complete || math.Abs(goal.Progress-100) < 0.005 ||
+		math.Abs(goal.Progress+tickrate-100) < 0.005 {
+		if goal.Progress != 100 {
+			goal.Progress = 100
+		}
+		complete = 1
+	} else {
+		goal.Progress += tickrate
+	}
+
+	stmt, err := db.Prepare(`UPDATE goals SET progress = ?, complete = ? WHERE id = ?`)
+	if err != nil {
+		return 0, err
+	}
+
+	res, err := stmt.Exec(goal.Progress, complete, goal.ID)
+	if err != nil {
+		return 0, err
+	}
+
+	if rowsAffected, err := res.RowsAffected(); err != nil || rowsAffected == 0 {
+		return 0, errors.New("could not tick progress")
+	}
+
+	return goal.Progress, nil
+}
+
 func CreateTableIfNotPresent(db *sql.DB) error {
 	query := `CREATE TABLE IF NOT EXISTS goals(
 		ID INTEGER PRIMARY KEY AUTOINCREMENT,
-		name TEXT NOT NULL,
-		maxTicks INTEGER NOT NULL,
-		progress REAL,
-		complete INTEGER
+		name TEXT NOT NULL UNIQUE,
+		maxTicks INTEGER NOT NULL DEFAULT 1,
+		progress REAL DEFAULT 0,
+		complete INTEGER DEFAULT 0
 	);`
 
 	_, err := db.Query(query)
