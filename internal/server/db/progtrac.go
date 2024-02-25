@@ -33,3 +33,21 @@ func ReadGoals(db *sql.DB) ([]Goal, error) {
 
 	return goals, nil
 }
+
+func CreateTableIfNotPresent(db *sql.DB) error {
+	query := `CREATE TABLE IF NOT EXISTS goals(
+		ID INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL,
+		maxTicks INTEGER NOT NULL,
+		progress REAL,
+		complete INTEGER
+	);`
+
+	_, err := db.Query(query)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

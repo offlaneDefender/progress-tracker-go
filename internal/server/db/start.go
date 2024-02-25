@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/offlaneDefender/progress-tracker-go/internal/common"
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
@@ -16,19 +17,33 @@ func Start() {
 	log.SetPrefix("greetings: ")
 	log.SetFlags(0)
 
-	dbUrl := os.Getenv("TURSO_URL")
-	if dbUrl == "" {
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Fatal("env: no .env file")
+	}
+
+	torsoUrl := os.Getenv("TURSO_URL")
+	if torsoUrl == "" {
 		log.Fatal("env: TURSO_URL not set")
 	}
 
-	dbAuthToken := os.Getenv("TURSO_AUTH_TOKEN")
-	if dbAuthToken == "" {
-		log.Fatal("env: TUROS_AUTH_TOKEN not set")
+	torsoToken := os.Getenv("TURSO_AUTH_TOKEN")
+	if torsoToken == "" {
+		log.Fatal("env: TURSO_AUTH_TOKEN not set")
 	}
+
+	dbUrl := torsoUrl + "?authToken=" + torsoToken
 
 	db, err := sql.Open("libsql", dbUrl)
 	if err != nil {
-		log.Fatalf("failed to open db %s: %s", dbUrl, err)
+		log.Fatalf("failed to open db %s: %s", torsoUrl, err)
+	}
+
+	err = CreateTableIfNotPresent(db)
+
+	if err != nil {
+		log.Fatalf("can't create goals table: %s", err)
 	}
 
 	res, err := ReadGoals(db)
