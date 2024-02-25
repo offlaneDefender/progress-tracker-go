@@ -1,4 +1,4 @@
-package server
+package inmemory
 
 import (
 	"encoding/json"
@@ -6,13 +6,12 @@ import (
 	"net/http"
 
 	"github.com/offlaneDefender/progress-tracker-go/internal/common"
-	"github.com/offlaneDefender/progress-tracker-go/internal/server/repo"
 )
 
 type goal = common.Goal
 
 func Start() {
-	pt := repo.CreateProgressTracker()
+	pt := CreateProgressTracker()
 
 	// Initialize a server
 	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
