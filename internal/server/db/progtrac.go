@@ -70,13 +70,11 @@ func AddGoal(db *sql.DB, name string, maxTicks int) error {
 		return err
 	}
 
-	id, err := res.LastInsertId()
+	_, err = res.LastInsertId()
 
 	if err != nil {
 		return err
 	}
-
-	fmt.Printf("Inserted goal with id %d", id)
 
 	return nil
 }
@@ -120,6 +118,33 @@ func TickProgress(db *sql.DB, name string) (float64, error) {
 	}
 
 	return goal.Progress, nil
+}
+
+func DeleteGoal(db *sql.DB, name string) (bool, error) {
+	if name == "" {
+		return false, errors.New("cannot delete goal with emtpy name")
+	}
+
+	goal, err := FindByName(db, name)
+	if err != nil {
+		return false, err
+	}
+
+	stmt, err := db.Prepare(`DELETE FROM goals WHERE id = ?`)
+	if err != nil {
+		return false, err
+	}
+
+	res, err := stmt.Exec(goal.ID)
+	if err != nil {
+		return false, err
+	}
+
+	if rowsAffected, err := res.RowsAffected(); err != nil || rowsAffected == 0 {
+		return false, errors.New("could not delete goal")
+	}
+
+	return true, nil
 }
 
 func CreateTableIfNotPresent(db *sql.DB) error {

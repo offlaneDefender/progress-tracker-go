@@ -47,19 +47,20 @@ func Start() {
 	}
 
 	res, err := ReadGoals(db)
-
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
 
 	fmt.Println(res)
 
-	_, err = FindByName(db, "TestInsert")
+	testName := "TestInsert"
+
+	_, err = FindByName(db, testName)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			log.Fatal(err)
 		} else {
-			err = AddGoal(db, "TestInsert", 10)
+			err = AddGoal(db, testName, 10)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -67,13 +68,22 @@ func Start() {
 		}
 	}
 
-	prg, err := TickProgress(db, "TestInsert")
-
+	prg, err := TickProgress(db, testName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fmt.Println("Updated TestInsert, new prog:", prg)
+
+	didDelete, err := DeleteGoal(db, testName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if !didDelete {
+		log.Fatal("error deleting test goal")
+	}
+
+	fmt.Println("Deleted test goal")
 
 	defer db.Close()
 }
