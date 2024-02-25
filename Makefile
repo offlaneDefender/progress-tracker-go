@@ -18,8 +18,8 @@ clean:
 	go clean
 	rm -r bin/
 
-test:
+run-test:
 	go test ./test/... -v
 
-test-coverage:
+run-test-coverage:
 	go test ./test/... -coverprofile=coverage.out
