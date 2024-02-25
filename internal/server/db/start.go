@@ -54,5 +54,13 @@ func Start() {
 
 	fmt.Println(res)
 
+	err = AddGoal(db, "TestInsert", 10)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Inserted goal")
+
 	defer db.Close()
 }

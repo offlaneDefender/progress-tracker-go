@@ -2,15 +2,15 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
-	"os"
+	"log"
 )
 
 func ReadGoals(db *sql.DB) ([]Goal, error) {
 	rows, err := db.Query("SELECT * FROM goals")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to execute query: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("failed to execute query: %v\n", err)
 	}
 	defer rows.Close()
 
@@ -32,6 +32,34 @@ func ReadGoals(db *sql.DB) ([]Goal, error) {
 	}
 
 	return goals, nil
+}
+
+func AddGoal(db *sql.DB, name string, maxTicks int) error {
+	if name == "" {
+		return errors.New("cannot insert goal with empty name")
+	}
+
+	query := `INSERT INTO goals(name, maxTicks, complete, progress) VALUES(
+		?,
+		?,
+		0,
+		0
+	);`
+
+	res, err := db.Exec(query, name, maxTicks)
+	if err != nil {
+		return err
+	}
+
+	id, err := res.LastInsertId()
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Inserted goal with id %d", id)
+
+	return nil
 }
 
 func CreateTableIfNotPresent(db *sql.DB) error {
